@@ -1,5 +1,15 @@
 # gradle-kubernetes-plugin
 
+deploy ur java/spring boot project without kubectl
+
+this project will help u doing these steps:
+
+- create default docker image based on https://github.com/bmuschko/gradle-docker-plugin , which has already added in the dependency of this project
+- create default service and deployment yaml
+- deploy to ur k8s
+
+just config ur project like this:
+
 ```
 kubernetes {
 
@@ -16,22 +26,6 @@ kubernetes {
             appName = '' // default ${project.name}
             springBootActiveProfiles = '' // default ''
             namespace = '' // default 'default'
-            
-            configMap {}
-            
-            secret {}     
-
-            pv{}
-
-            serviceAccount {}
-
-            role {}
-
-            clusetRole {}
-
-            roleBinding {}
-
-            clusterRoleBinding {}
 
             deployment {
                 default {   
@@ -61,3 +55,28 @@ kubernetes {
 }
 
 ```
+
+## todo
+
+- add more api
+
+```
+configMap {}
+            
+secret {}     
+
+pv{}
+
+serviceAccount {}
+
+role {}
+
+clusetRole {}
+
+roleBinding {}
+
+clusterRoleBinding {}
+```
+
+- separate deploy process for each api，combine any api u needs
+- support helm charts
