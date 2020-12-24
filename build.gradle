@@ -4,42 +4,30 @@ buildscript {
         maven {
             url "https://plugins.gradle.org/m2/"
         }
-        maven {
-            url "https://na.artifactory.swg-devops.com/artifactory/eswchina-generic-local"
-            credentials {
-                username = System.getenv('artifactory_user') != null ? System.getenv('artifactory_user') : "${artifactory_user}"
-                password = System.getenv('artifactory_api_key') != null ? System.getenv('artifactory_api_key') : "${artifactory_api_key}"
-            }
-        }
     }
     dependencies {
         classpath('org.yaml:snakeyaml:1.19')
         classpath('io.freefair.gradle:lombok-plugin:3.8.1')
+        classpath('com.gradle.publish:plugin-publish-plugin:0.12.0')
     }
 }
 
 apply plugin: 'groovy'
 apply plugin: 'java'
 apply plugin: 'io.freefair.lombok'
+apply plugin: "com.gradle.plugin-publish"
+apply plugin: "java-gradle-plugin"
+
 
 group = 'com.ibm.esw'
 version = '0.0.5.13-beta'
 sourceCompatibility = 1.8
-
-apply from: 'artifacts.gradle'
 
 repositories {
     mavenCentral()
     jcenter()
     maven { url "https://repo.spring.io/milestone" }
     maven { url "https://plugins.gradle.org/m2/" }
-    maven {
-        url "https://na.artifactory.swg-devops.com/artifactory/eswchina-generic-local"
-        credentials {
-            username = "${artifactory_user}"
-            password = "${artifactory_api_key}"
-        }
-    }
 }
 
 dependencies {
@@ -53,7 +41,44 @@ dependencies {
     compile 'com.nimbusds:nimbus-jose-jwt:6.0.2'
     compile 'io.fabric8:kubernetes-client:4.10.3'
     compile 'net.lingala.zip4j:zip4j:2.2.8'
-//    compile 'com.ibm.esw:gradle-ibmcloud-plugin:0.0.7-beta'
     compile 'com.bmuschko:gradle-docker-plugin:6.6.1'
     compileOnly 'org.projectlombok:lombok'
 }
+
+
+// Use java-gradle-plugin to generate plugin descriptors and specify plugin ids
+gradlePlugin {
+    plugins {
+        KubernetesJavaApplicationPlugin {
+            id = 'com.ibm.esw.kubernetesJavaApplicationPlugin'
+            implementationClass = 'com.ibm.gradle.plugin.kubernetes.plugin.KubernetesJavaApplicationPlugin'
+        }
+        KubernetesSpringBootApplicationPlugin {
+            id = 'com.ibm.esw.kubernetesSpringBootApplicationPlugin'
+            implementationClass = 'com.ibm.gradle.plugin.kubernetes.plugin.KubernetesSpringBootApplicationPlugin'
+        }
+    }
+}
+
+// The configuration example below shows the minimum required properties
+// configured to publish your plugin to the plugin portal
+pluginBundle {
+    website = 'https://github.com/IBM/gradle-k8s-plugin'
+    vcsUrl = 'https://github.com/IBM/gradle-k8s-plugin'
+    description = 'a Gradle plugin help java application deploy to Kubernetes cluster.'
+    tags = ['k8s']
+
+    plugins {
+        KubernetesJavaApplicationPlugin {
+            // id is captured from java-gradle-plugin configuration
+            displayName = 'Gradle k8s java application plugin'
+        }
+
+        KubernetesSpringBootApplicationPlugin {
+            // id is captured from java-gradle-plugin configuration
+            displayName = 'Gradle k8s spring boot application plugin'
+        }
+    }
+}
+
+tasks.withType(Javadoc).all { enabled = false }
