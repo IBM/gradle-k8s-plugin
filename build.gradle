@@ -1,0 +1,59 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        maven {
+            url "https://na.artifactory.swg-devops.com/artifactory/eswchina-generic-local"
+            credentials {
+                username = System.getenv('artifactory_user') != null ? System.getenv('artifactory_user') : "${artifactory_user}"
+                password = System.getenv('artifactory_api_key') != null ? System.getenv('artifactory_api_key') : "${artifactory_api_key}"
+            }
+        }
+    }
+    dependencies {
+        classpath('org.yaml:snakeyaml:1.19')
+        classpath('io.freefair.gradle:lombok-plugin:3.8.1')
+    }
+}
+
+apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'io.freefair.lombok'
+
+group = 'com.ibm.esw'
+version = '0.0.5.13-beta'
+sourceCompatibility = 1.8
+
+apply from: 'artifacts.gradle'
+
+repositories {
+    mavenCentral()
+    jcenter()
+    maven { url "https://repo.spring.io/milestone" }
+    maven { url "https://plugins.gradle.org/m2/" }
+    maven {
+        url "https://na.artifactory.swg-devops.com/artifactory/eswchina-generic-local"
+        credentials {
+            username = "${artifactory_user}"
+            password = "${artifactory_api_key}"
+        }
+    }
+}
+
+dependencies {
+    implementation gradleApi()
+    implementation localGroovy()
+    compile 'io.github.openfeign:feign-core:10.4.0'
+    compile 'io.github.openfeign:feign-jackson:10.4.0'
+    compile 'io.github.openfeign:feign-slf4j:10.4.0'
+    compile 'io.github.openfeign.form:feign-form:3.8.0'
+    compile 'com.google.guava:guava:28.1-jre'
+    compile 'com.nimbusds:nimbus-jose-jwt:6.0.2'
+    compile 'io.fabric8:kubernetes-client:4.10.3'
+    compile 'net.lingala.zip4j:zip4j:2.2.8'
+//    compile 'com.ibm.esw:gradle-ibmcloud-plugin:0.0.7-beta'
+    compile 'com.bmuschko:gradle-docker-plugin:6.6.1'
+    compileOnly 'org.projectlombok:lombok'
+}
